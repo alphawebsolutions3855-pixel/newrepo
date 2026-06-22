@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpha Automation | Users</title>
+  <style>
+    :root {
+      --bg: #fff;
+      --surface: #fff;
+      --text: #111;
+      --muted: #666;
+      --accent: #c20000;
+      --accent-soft: #fde8e8;
+      --border: #eee;
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, #fff 0%, #f7e7e7 100%); color: var(--text); font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .page { max-width: 1120px; margin: 0 auto; padding: 28px 24px 40px; }
+    .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 24px; }
+    .brand { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+    .subtitle { color: var(--muted); margin: 4px 0 0; }
+    .content-grid { display: grid; gap: 24px; grid-template-columns: 1.1fr 0.9fr; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 26px; padding: 26px; box-shadow: var(--shadow); }
+    .panel h2 { margin-top: 0; color: var(--accent); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-weight: 700; margin-bottom: 8px; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid #ece8e8; background: #fcfcfc; font-size: 1rem; color: var(--text); }
+    input[type="checkbox"] { width: auto; margin-right: 8px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; padding: 14px 20px; border-radius: 18px; border: none; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
+    .button-secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { text-align: left; padding: 16px 14px; border-bottom: 1px solid #f0eded; }
+    th { color: var(--muted); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.06em; }
+    tbody tr:hover { background: #fff3f3; }
+    .small-note { color: var(--muted); font-size: 0.95rem; margin-top: 14px; }
+    .action-btn { padding: 9px 14px; border: 1px solid var(--accent); border-radius: 14px; background: #fff; color: var(--accent); cursor: pointer; }
+    @media (max-width: 860px) { .content-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <div>
+        <div class="brand">Alpha Automation</div>
+        <p class="subtitle">Create admin users and keep password management in one polished panel.</p>
+      </div>
+      <a class="button button-secondary" href="/admin/dashboard">Back to Dashboard</a>
+    </div>
+
+    <div class="content-grid">
+      <section class="panel">
+        <h2>Create User</h2>
+        <form id="createForm">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required />
+          </div>
+          <div class="form-group">
+            <label><input id="is_admin" name="is_admin" type="checkbox" /> Administrator</label>
+          </div>
+          <button class="button" type="submit">Create User</button>
+        </form>
+        <p class="small-note">New users are created with strong password hashing and role enforcement.</p>
+        <div id="createResult" class="small-note"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Existing Users</h2>
+        <table id="usersTable">
+          <thead>
+            <tr><th>ID</th><th>Username</th><th>Admin</th><th>Action</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    async function loadUsers() {
+      const res = await fetch('/admin/users/list', { credentials: 'include' });
+      if (res.status === 401) {
+        document.body.innerHTML = '<p style="padding:32px;font-family:Inter,sans-serif;">Unauthorized. Please <a href="/admin/login">login</a>.</p>';
+        return;
+      }
+      const data = await res.json();
+      const tbody = document.querySelector('#usersTable tbody');
+      tbody.innerHTML = '';
+      data.users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${u.id}</td>
+          <td>${u.username}</td>
+          <td>${u.is_admin}</td>
+          <td><button class="action-btn" data-user="${u.username}">Reset password</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll('.action-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+          const username = button.getAttribute('data-user');
+          const newpw = prompt('New password for ' + username);
+          if (!newpw) return;
+          const form = new FormData();
+          form.append('new_password', newpw);
+          const res = await fetch(`/admin/users/${encodeURIComponent(username)}/set_password`, { method: 'POST', body: form, credentials: 'include' });
+          if (res.ok) { alert('Password updated'); loadUsers(); }
+          else { alert('Error updating password'); }
+        });
+      });
+    }
+
+    document.getElementById('createForm').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const form = ev.target;
+      const formData = new FormData(form);
+      const isAdmin = form.elements['is_admin'].checked ? 'true' : 'false';
+      formData.append('is_admin', isAdmin);
+      const response = await fetch('/admin/users', { method: 'POST', body: formData, credentials: 'include' });
+      const json = await response.json().catch(() => ({}));
+      if (response.ok) {
+        document.getElementById('createResult').textContent = 'Created ' + json.created;
+        form.reset();
+        loadUsers();
+      } else {
+        document.getElementById('createResult').textContent = 'Error: ' + (json.detail || response.status);
+      }
+    });
+
+    loadUsers();
+  </script>
+</body>
+</html>

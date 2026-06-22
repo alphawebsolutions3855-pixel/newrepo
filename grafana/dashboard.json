@@ -1,0 +1,34 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": null,
+    "title": "Alpha-Automation Overview",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Pending Items",
+        "targets": [ { "expr": "aa_items_pending" } ],
+        "gridPos": {"h":4,"w":6,"x":0,"y":0}
+      },
+      {
+        "type": "stat",
+        "title": "Published Total",
+        "targets": [ { "expr": "aa_items_published_total" } ],
+        "gridPos": {"h":4,"w":6,"x":6,"y":0}
+      },
+      {
+        "type": "stat",
+        "title": "Failed Total",
+        "targets": [ { "expr": "aa_items_failed_total" } ],
+        "gridPos": {"h":4,"w":6,"x":0,"y":4}
+      },
+      {
+        "type": "stat",
+        "title": "Worker Active",
+        "targets": [ { "expr": "aa_worker_active" } ],
+        "gridPos": {"h":4,"w":6,"x":6,"y":4}
+      }
+    ]
+  },
+  "overwrite": false
+}

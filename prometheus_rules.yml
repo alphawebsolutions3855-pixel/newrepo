@@ -1,0 +1,11 @@
+groups:
+  - name: alpha-automation-alerts
+    rules:
+      - alert: HighFailedPublishes
+        expr: increase(aa_items_failed_total[5m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High rate of failed publishes"
+          description: "aa_items_failed_total increased by more than 5 in the last 5 minutes."

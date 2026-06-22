@@ -1,0 +1,22 @@
+{
+  "title": "Alpha Automation Alerts",
+  "rules": [
+    {
+      "uid": "high_failed_publishes",
+      "title": "High Failed Publishes",
+      "condition": "when query(A, 5m, now) > 5",
+      "data": [
+        {
+          "refId": "A",
+          "expr": "increase(aa_items_failed_total[5m])"
+        }
+      ],
+      "for": "1m",
+      "labels": {"severity":"critical"},
+      "annotations": {
+        "summary": "High rate of failed publishes",
+        "description": "aa_items_failed_total increased by more than 5 in the last 5 minutes."
+      }
+    }
+  ]
+}

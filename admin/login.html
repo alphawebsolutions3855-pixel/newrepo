@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpha Automation | Login</title>
+  <style>
+    :root {
+      --bg: #fff;
+      --surface: #fff;
+      --text: #111;
+      --muted: #666;
+      --accent: #c20000;
+      --accent-soft: #fde8e8;
+      --border: #f0f0f0;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at top left, rgba(194,0,0,0.12), transparent 30%), linear-gradient(180deg, #fff 0%, #f9f2f2 100%); color: var(--text); font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; display: flex; justify-content: center; align-items: center; }
+    .page { width: min(520px, calc(100% - 32px)); padding: 34px; border-radius: 30px; background: var(--surface); box-shadow: var(--shadow); border: 1px solid var(--border); }
+    .brand { color: var(--accent); font-size: 1.5rem; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 10px; }
+    .subtitle { margin: 0 0 28px; color: var(--muted); line-height: 1.7; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    input { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid #ebe8e8; background: #fcfcfc; font-size: 1rem; color: var(--text); }
+    input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 4px rgba(194,0,0,0.12); }
+    .button { width: 100%; padding: 16px 18px; border-radius: 16px; border: none; background: var(--accent); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
+    .helper { margin-top: 18px; font-size: 0.95rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="brand">Alpha Automation</div>
+    <p class="subtitle">Sign in to access the admin dashboard, manage users, and review license status.</p>
+    <form method="post" action="/admin/login">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
+      </div>
+      <button class="button" type="submit">Login</button>
+    </form>
+    <p class="helper">Default admin: <strong>admin</strong> / <strong>admin123</strong></p>
+  </main>
+</body>
+</html>

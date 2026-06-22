@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpha Automation | Dashboard</title>
+  <style>
+    :root {
+      --bg: #faf5f5;
+      --surface: #fff;
+      --text: #111;
+      --muted: #6f6f6f;
+      --accent: #c20000;
+      --accent-soft: #fde8e8;
+      --border: #eee;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .page { max-width: 1100px; margin: 0 auto; padding: 28px 24px 40px; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 28px; }
+    .brand { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+    .subtitle { color: var(--muted); margin: 4px 0 0; }
+    .panel-grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 26px; padding: 24px; box-shadow: var(--shadow); }
+    .panel h2 { margin: 0 0 14px; font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); }
+    .panel .value { font-size: 2.6rem; font-weight: 800; margin: 0; color: #222; }
+    .panel .label { margin: 10px 0 0; color: var(--muted); font-size: 0.96rem; }
+    .summary { display: grid; gap: 20px; grid-template-columns: 2fr 1fr; margin-bottom: 26px; }
+    .summary .card { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 26px; box-shadow: var(--shadow); }
+    .card-title { margin: 0 0 18px; font-size: 1.1rem; color: var(--accent); }
+    pre { background: #fdf1f1; padding: 18px; border-radius: 20px; border: 1px solid #f2d2d2; color: #3b3b3b; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+    .action-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+    .button { text-decoration: none; padding: 12px 18px; border-radius: 999px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+    .button-primary { background: var(--accent); color: #fff; }
+    .button-secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    @media (max-width: 800px) { .summary { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="brand">Alpha Automation</div>
+        <p class="subtitle">Dashboard view for admins, licenses, and status monitoring.</p>
+      </div>
+      <div class="action-row">
+        <a href="/admin/users/ui" class="button button-secondary">Manage Users</a>
+        <a href="/admin/logout" class="button button-primary">Logout</a>
+      </div>
+    </header>
+
+    <div class="summary">
+      <div class="card">
+        <div class="card-title">Quick status</div>
+        <pre id="status">Loading system statistics...</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">Batches</div>
+        <pre id="batches">Loading batch details...</pre>
+      </div>
+    </div>
+
+    <div class="panel-grid">
+      <section class="panel">
+        <h2>Stats</h2>
+        <p class="value" id="stat-users">—</p>
+        <p class="label">Registered users</p>
+      </section>
+      <section class="panel">
+        <h2>Licenses</h2>
+        <p class="value" id="stat-licenses">—</p>
+        <p class="label">Active licenses</p>
+      </section>
+      <section class="panel">
+        <h2>Devices</h2>
+        <p class="value" id="stat-devices">—</p>
+        <p class="label">Registered devices</p>
+      </section>
+      <section class="panel">
+        <h2>Errors</h2>
+        <p class="value" id="stat-errors">—</p>
+        <p class="label">Logged issues</p>
+      </section>
+    </div>
+
+    <div class="panel-grid">
+      <section class="panel">
+        <h2>Recent metrics</h2>
+        <pre id="metrics">Loading metrics...</pre>
+      </section>
+      <section class="panel">
+        <h2>Batch export</h2>
+        <pre id="batch-summary">Loading batch list...</pre>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    async function loadStats() {
+      const stats = await fetch('/admin/stats', { credentials: 'include' }).then(r => r.ok ? r.json() : null).catch(() => null);
+      if (!stats) {
+        document.getElementById('status').textContent = 'Unable to load stats. Please login again.';
+        return;
+      }
+      document.getElementById('stat-users').textContent = stats.users;
+      document.getElementById('stat-licenses').textContent = stats.licenses;
+      document.getElementById('stat-devices').textContent = stats.devices;
+      document.getElementById('stat-errors').textContent = stats.error_logs;
+      document.getElementById('status').textContent = `Posts: ${stats.posts}\nDrafts: ${stats.drafts}\nBatches: ${stats.batches}\nFailed handlers: ${stats.failed_handlers}`;
+    }
+
+    async function loadBatches() {
+      const response = await fetch('/admin/batches', { credentials: 'include' });
+      if (!response.ok) {
+        document.getElementById('batch-summary').textContent = 'Unauthorized or unable to load batches.';
+        return;
+      }
+      const data = await response.json();
+      document.getElementById('batch-summary').textContent = JSON.stringify(data.batches, null, 2);
+    }
+
+    async function loadMetrics() {
+      const response = await fetch('/metrics');
+      const text = await response.text();
+      document.getElementById('metrics').textContent = text;
+    }
+
+    loadStats();
+    loadBatches();
+    loadMetrics();
+    setInterval(loadMetrics, 6000);
+  </script>
+</body>
+</html>
