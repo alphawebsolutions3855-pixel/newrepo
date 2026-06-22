@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpha Automation | Batches</title>
+  <style>
+    :root{--accent:#c20000}
+    body{font-family:Inter,system-ui,Arial;margin:0;background:linear-gradient(180deg,#fff,#f9f2f2)}
+    .wrap{max-width:1100px;margin:28px auto;padding:20px}
+    .card{background:#fff;padding:18px;border-radius:14px;border:1px solid #f0eaea}
+    .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;border:none}
+    pre{background:#fff3f3;padding:12px;border-radius:10px;border:1px solid #f4d6d6}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="color:var(--accent)">Batches</h1>
+    <div class="card">
+      <div style="display:flex;gap:12px;margin-bottom:12px">
+        <button id="refresh" class="btn">Refresh</button>
+      </div>
+      <pre id="batches">loading...</pre>
+    </div>
+  </div>
+  <script>
+    async function load(){
+      const r = await fetch('/admin/batches', {credentials:'include'});
+      if(!r.ok){ document.getElementById('batches').textContent='Unauthorized'; return }
+      const j = await r.json(); document.getElementById('batches').textContent = JSON.stringify(j, null, 2);
+    }
+    document.getElementById('refresh').addEventListener('click', load);
+    load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpha Automation | Posts</title>
+  <style>
+    :root{--accent:#c20000}
+    body{font-family:Inter,system-ui,Arial;margin:0;background:linear-gradient(180deg,#fff,#f9f2f2)}
+    .wrap{max-width:900px;margin:28px auto;padding:20px}
+    .card{background:#fff;padding:18px;border-radius:14px;border:1px solid #f0eaea}
+    input,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #eee;margin-top:8px}
+    .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;border:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="color:var(--accent)">Create Post</h1>
+    <div class="card">
+      <label>Title</label>
+      <input id="title" />
+      <label>Body</label>
+      <textarea id="body" rows="6"></textarea>
+      <button id="create" class="btn">Create Post</button>
+      <pre id="out">-</pre>
+    </div>
+  </div>
+  <script>
+    document.getElementById('create').addEventListener('click', async ()=>{
+      const title=document.getElementById('title').value;
+      const body=document.getElementById('body').value;
+      const r=await fetch('/posts/create', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({title,body,account_type:'old'})});
+      const j = await r.json(); document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpha Automation | Offers</title>
+  <style>
+    :root{--accent:#c20000}
+    body{font-family:Inter,system-ui,Arial;margin:0;background:linear-gradient(180deg,#fff,#f9f2f2)}
+    .wrap{max-width:900px;margin:28px auto;padding:20px}
+    .card{background:#fff;padding:18px;border-radius:14px;border:1px solid #f0eaea}
+    .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;border:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="color:var(--accent)">Offers</h1>
+    <div class="card">
+      <p>Create and manage promo offers.</p>
+      <label>Code <input id="code" /></label>
+      <label>Package <input id="pkg" /></label>
+      <div style="margin-top:12px"><button id="create" class="btn">Create Offer</button></div>
+      <pre id="out">-</pre>
+    </div>
+  </div>
+  <script>
+    document.getElementById('create').addEventListener('click', async ()=>{
+      const code = document.getElementById('code').value || Math.random().toString(36).slice(2,8).toUpperCase();
+      const pkg = document.getElementById('pkg').value || 'pro';
+      const r = await fetch('/admin/offers/create', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({code,pkg})}).catch(()=>null);
+      if(!r){ document.getElementById('out').textContent='Error or unauthorized'; return }
+      const j = await r.json(); document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+    });
+  </script>
+</body>
+</html>

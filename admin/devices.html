@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpha Automation | Devices</title>
+  <style>
+    :root{--accent:#c20000}
+    body{font-family:Inter,system-ui,Arial;margin:0;background:linear-gradient(180deg,#fff,#f9f2f2)}
+    .wrap{max-width:1100px;margin:28px auto;padding:20px}
+    .card{background:#fff;padding:18px;border-radius:14px;border:1px solid #f0eaea}
+    .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;border:none}
+    pre{background:#fff3f3;padding:12px;border-radius:10px;border:1px solid #f4d6d6}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="color:var(--accent)">Devices</h1>
+    <div class="card">
+      <p>Register and inspect devices</p>
+      <pre id="devices">loading...</pre>
+      <div style="margin-top:12px"><button id="refresh" class="btn">Refresh</button></div>
+    </div>
+  </div>
+  <script>
+    async function load(){
+      const r = await fetch('/devices/list', {credentials:'include'}).catch(()=>null);
+      if(!r || !r.ok){ document.getElementById('devices').textContent='No device API or unauthorized'; return }
+      const j = await r.json(); document.getElementById('devices').textContent = JSON.stringify(j, null, 2);
+    }
+    document.getElementById('refresh').addEventListener('click', load);
+    load();
+  </script>
+</body>
+</html>
